@@ -23,7 +23,7 @@ export class Pdf417BarcodeComponent implements AfterViewInit, OnChanges {
 
     /* update the barcode class */
     this.pdf417.init(this.text, errorcorrection, aspectratio);
-    const barcode = this.pdf417.getBarcodeArray();
+    const barcode: any = this.pdf417.getBarcodeArray();
 
     /* create a new canvas and get drawing context */
     const newcanvas   = document.createElement('canvas');
@@ -49,7 +49,7 @@ export class Pdf417BarcodeComponent implements AfterViewInit, OnChanges {
     /* replace canvas in container */
     if (this.container && this.container.nativeElement) {
       const el: HTMLCanvasElement = this.container.nativeElement;
-      
+
       if (el.firstChild) el.removeChild(el.firstChild);
       el.appendChild(newcanvas);
     }

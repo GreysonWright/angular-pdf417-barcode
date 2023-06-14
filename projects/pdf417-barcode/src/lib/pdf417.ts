@@ -4,7 +4,7 @@
  * Original port by bkuzmic: https://github.com/bkuzmic/pdf417-js
  */
 
-var phpbc = require('locutus/php/bc');
+import Decimal from '@agrora/decimal';
 
 export const PDF417 = {
   ROWHEIGHT: 4,
@@ -16,7 +16,7 @@ export const PDF417 = {
   stop_pattern: '111111101000101001',
 
   /**
-   * Array of text Compaction Sub-Modes (values 0xFB - 0xFF are used for submode changers).  
+   * Array of text Compaction Sub-Modes (values 0xFB - 0xFF are used for submode changers).
    */
   textsubmodes: [
     [0x41,0x42,0x43,0x44,0x45,0x46,0x47,0x48,0x49,0x4a,0x4b,0x4c,0x4d,0x4e,0x4f,0x50,0x51,0x52,0x53,0x54,0x55,0x56,0x57,0x58,0x59,0x5a,0x20,0xFD,0xFE,0xFF], // Alpha
@@ -26,7 +26,7 @@ export const PDF417 = {
   ],
 
   /**
-   * Array of switching codes for Text Compaction Sub-Modes.   
+   * Array of switching codes for Text Compaction Sub-Modes.
    */
   textlatch: {
     '01': [27], '02': [28], '03': [28,25], //
@@ -54,7 +54,7 @@ export const PDF417 = {
    * <li>926 : Identifier for a general purpose ECI format</li>
    * <li>927 : Identifier for an ECI of a character set or code page</li>
    * <li>928 : Macro marker codeword to indicate the beginning of a Macro PDF Control Block</li>
-   * </ul>   
+   * </ul>
    */
   clusters: [
     [ // cluster 0 -----------------------------------------------------------------------
@@ -338,7 +338,7 @@ export const PDF417 = {
       0x11f64,0x10f22,0x11f62,0x10716,0x10f36,0x11f76,0x1cfd4,0x1cfd2,0x18f94,0x19fb4, // 900
       0x18f92,0x19fb2,0x10f14,0x11f34,0x10f12,0x13f74,0x11f32,0x13f72,0x1cfca,0x18f8a, // 910
       0x19f9a,0x10f0a,0x11f1a,0x13f3a,0x103ac,0x103a6,0x107a8,0x183d6,0x107a4,0x107a2, // 920
-      0x10396,0x107b6,0x187d4,0x187d2,0x10794,0x10fb4,0x10792,0x10fb2,0x1c7ea]         // 929 
+      0x10396,0x107b6,0x187d4,0x187d2,0x10794,0x10fb4,0x10792,0x10fb2,0x1c7ea]         // 929
   ],
 
   /**
@@ -421,26 +421,26 @@ export const PDF417 = {
       0x2cd,0x02d,0x06f,0x014,0x254,0x11c,0x2e0,0x08a,0x286,0x19b,0x36d,0x29d,0x08d,0x397,0x02d,0x30c, // 480
       0x197,0x0a4,0x14c,0x383,0x0a5,0x2d6,0x258,0x145,0x1f2,0x28f,0x165,0x2f0,0x300,0x0df,0x351,0x287, // 496
       0x03f,0x136,0x35f,0x0fb,0x16e,0x130,0x11a,0x2e2,0x2a3,0x19a,0x185,0x0f4,0x01f,0x079,0x12f,0x107] // 512
-  ],  
+  ],
 
   /**
    * This is the class constructor.
    * Creates a PDF417 object
    * @param code (string) code to represent using PDF417
    * @param ecl (int) error correction level (0-8); default -1 = automatic correction level
-   * @param aspectratio (float) the width to height of the symbol (excluding quiet zones)  
+   * @param aspectratio (float) the width to height of the symbol (excluding quiet zones)
    */
-  init: function(code, ecl, aspectratio) {    
-    code = unescape(encodeURIComponent(code)); // covert UTF-8 to ISO-8859-1 
+  init: function(code: any, ecl: any, aspectratio: any) {
+    code = unescape(encodeURIComponent(code)); // covert UTF-8 to ISO-8859-1
     ecl = ecl || -1;
-    aspectratio = aspectratio || 2;   
+    aspectratio = aspectratio || 2;
     this.barcode_array = {};
     if (code === "") {
       return false;
     }
     // get the input sequence array
-    let sequence = this.getInputSequences(code);    
-    let codewords = []; // array of code-words
+    let sequence = this.getInputSequences(code);
+    let codewords: any = []; // array of code-words
     for(var i=0;i<sequence.length; i++) {
       var cw = this.getCompaction(sequence[i][0], sequence[i][1], true);
       codewords = codewords.concat(cw);
@@ -454,7 +454,7 @@ export const PDF417 = {
     if (numcw > 925) {
       // reached maximum data codeword capacity
       return false;
-    }   
+    }
 
     // set error correction level
     ecl = this.getErrorCorrectionLevel(ecl, numcw);
@@ -515,21 +515,21 @@ export const PDF417 = {
     // add horizontal quiet zones to start and stop patterns
     var pstart = this._str_repeat('0', this.QUIETH) + this.start_pattern;
     var pstop = this.stop_pattern + "" + this._str_repeat('0', this.QUIETH);
-    this.barcode_array['num_rows'] = (rows * this.ROWHEIGHT) + (2 * this.QUIETV);
-    this.barcode_array['num_cols'] = ((cols + 2) * 17) + 35 + (2 * this.QUIETH);
-    this.barcode_array['bcode'] = [];
+    (this.barcode_array as Record<any, any>)['num_rows'] = (rows * this.ROWHEIGHT) + (2 * this.QUIETV);
+    (this.barcode_array as Record<any, any>)['num_cols'] = ((cols + 2) * 17) + 35 + (2 * this.QUIETH);
+    (this.barcode_array as Record<any, any>)['bcode'] = [];
 
     var empty_row;
     // build rows for vertical quiet zone
     if (this.QUIETV > 0) {
-      empty_row = this._array_fill(0, this.barcode_array['num_cols'], 0);
+      empty_row = this._array_fill(0, (this.barcode_array as Record<any, any>)['num_cols'], 0);
       for (var i = 0; i < this.QUIETV; ++i) {
         // add vertical quiet rows
-        this.barcode_array['bcode'].push(empty_row);
+        (this.barcode_array as Record<any, any>)['bcode'].push(empty_row);
       }
     }
 
-    var L;
+    var L: any;
     var k = 0; // codeword index
     var cid = 0; // initial cluster
     // for each row
@@ -572,14 +572,14 @@ export const PDF417 = {
         }
       }
       // right row indicator
-      row += this._sprintf('%17b', this.clusters[cid][L]);
+      row += this._sprintf('%17b', (this.clusters[cid] as Record<any, any>)[L]);
       // row stop code
       row += pstop;
       // convert the string to array
       var arow = this._preg_split('//', row, -1, 'PREG_SPLIT_NO_EMPTY');
       // duplicate row to get the desired height
       for (var h = 0; h < this.ROWHEIGHT; ++h) {
-        this.barcode_array['bcode'].push(arow);
+        (this.barcode_array as Record<any, any>)['bcode'].push(arow);
       }
       ++cid;
       if (cid > 2) {
@@ -589,18 +589,19 @@ export const PDF417 = {
     if (this.QUIETV > 0) {
       for (var i = 0; i < this.QUIETV; ++i) {
         // add vertical quiet rows
-        this.barcode_array['bcode'].push(empty_row);
+        (this.barcode_array as Record<any, any>)['bcode'].push(empty_row);
       }
     }
+    return;
   },
 
-  getInputSequences: function(code) {
+  getInputSequences: function(code: any) {
     var sequence_array = []; // array to be returned
     var numseq = [];
-    // get numeric sequences    
+    // get numeric sequences
     numseq = code.match(/([0-9]{13,44})/g);
     if (numseq == null) {
-      numseq = [];      
+      numseq = [];
     } else {
       // add offset to each matched line
       for (var n = 0, offset = 0; n < numseq.length; n++) {
@@ -612,23 +613,23 @@ export const PDF417 = {
     numseq.push(['', code.length]);
     var offset = 0;
     for(var i=0; i<numseq.length; i++) {
-      var seq = numseq[i];      
+      var seq = numseq[i];
       var seqlen = seq[0].length;
       if (seq[1] > 0) {
         // extract text sequence before the number sequence
         var prevseq = code.substr(offset, (seq[1] - offset));
         var textseq = [];
-        // get text sequences       
+        // get text sequences
         textseq = prevseq.match(/([\x09\x0a\x0d\x20-\x7e]{5,})/g);
         if (textseq == null) {
-          textseq = [];       
+          textseq = [];
         } else {
           // add offset to each matched line
           for (var n=0;n<textseq.length;n++) {
             var offset: number = prevseq.indexOf(textseq[n]);
             textseq[n] = [textseq[n], offset];
           }
-        }       
+        }
         textseq.push(['', prevseq.length]);
         var txtoffset = 0;
         for(var j=0; j<textseq.length; j++) {
@@ -664,13 +665,13 @@ export const PDF417 = {
     return sequence_array;
   },
 
-  getCompaction: function(mode, code, addmode) {
+  getCompaction: function(mode: any, code: any, addmode: any) {
     addmode = addmode || true;
-    var cw = []; // array of codewords to return
+    var cw: any[] = []; // array of codewords to return
     switch(mode) {
       case 900: { // Text Compaction mode latch
         var submode = 0; // default Alpha sub-mode
-        var txtarr = []; // array of characters and sub-mode switching characters
+        var txtarr: any[] = []; // array of characters and sub-mode switching characters
         var codelen = code.length;
         for (var i = 0; i < codelen; ++i) {
           var chval = this._ord(code.charAt(i));
@@ -695,7 +696,7 @@ export const PDF417 = {
                   }
                 } else {
                   // latch
-                  txtarr  = txtarr.concat(this.textlatch[''+submode+s]);
+                  txtarr  = txtarr.concat((this.textlatch as any)[''+submode+s]);
                   // set new submode
                   submode = s;
                 }
@@ -723,30 +724,42 @@ export const PDF417 = {
         var rest;
         var sublen;
         var codelen;
-        while ((codelen = code.length) > 0) {         
+        while ((codelen = code.length) > 0) {
           if (codelen > 6) {
             rest = code.substring(6);
             code = code.substring(0, 6);
             sublen = 6;
-          } else {            
+          } else {
             rest = '';
             sublen = code.length;
           }
           if (sublen == 6) {
-            var t: string = phpbc.bcmul(''+this._ord(code.charAt(0)), '1099511627776');
-            t = phpbc.bcadd(t, phpbc.bcmul('' + this._ord(code.charAt(1)), '4294967296'));
-            t = phpbc.bcadd(t, phpbc.bcmul('' + this._ord(code.charAt(2)), '16777216'));
-            t = phpbc.bcadd(t, phpbc.bcmul('' + this._ord(code.charAt(3)), '65536'));
-            t = phpbc.bcadd(t, phpbc.bcmul('' + this._ord(code.charAt(4)), '256'));
-            t = phpbc.bcadd(t, '' + this._ord(code.charAt(5)));
+            // var t: string = phpbc.bcmul(''+this._ord(code.charAt(0)), '1099511627776');
+            // t = phpbc.bcadd(t, phpbc.bcmul('' + this._ord(code.charAt(1)), '4294967296'));
+            // t = phpbc.bcadd(t, phpbc.bcmul('' + this._ord(code.charAt(2)), '16777216'));
+            // t = phpbc.bcadd(t, phpbc.bcmul('' + this._ord(code.charAt(3)), '65536'));
+            // t = phpbc.bcadd(t, phpbc.bcmul('' + this._ord(code.charAt(4)), '256'));
+            // t = phpbc.bcadd(t, '' + this._ord(code.charAt(5)));
+
+            var t = Decimal.from(''+this._ord(code.charAt(0))).multiply('1099511627776')
+            .add(Decimal.from(''+this._ord(code.charAt(1))).multiply('4294967296'))
+            .add(Decimal.from('' + this._ord(code.charAt(2))).multiply('16777216'))
+            .add(Decimal.from('' + this._ord(code.charAt(3))).multiply('65536'))
+            .add(Decimal.from('' + this._ord(code.charAt(4))).multiply('256'))
+            .add(Decimal.from('' + this._ord(code.charAt(5))))
+
             // tmp array for the 6 bytes block
             var cw6 = [];
             do {
-              var d = this._my_bcmod(t, '900');
-              t = phpbc.bcdiv(t, '900');
+              // var d = this._my_bcmod(t, '900');
+              // t = phpbc.bcdiv(t, '900');
+
+              var d = this._my_bcmod(t.toString(), '900');
+              t = t.divide('900');
+
               // prepend the value to the beginning of the array
               cw6.unshift(d);
-            } while (t != '0');
+            } while (t.toString() != '0');
             // append the result array at the end
             cw = cw.concat(cw6);
           } else {
@@ -768,12 +781,14 @@ export const PDF417 = {
           } else {
             rest = '';
           }
-          var t = '1' + code;
+          // var t = '1' + code;
+          var t = Decimal.from('1' + code);
           do {
             var d = this._my_bcmod(t, '900');
-            t = phpbc.bcdiv(t, '900');
+            // t = phpbc.bcdiv(t, '900');
+            t = t.divide('900');
             cw.unshift(d);
-          } while (t != '0');
+          } while (t.toString() != '0');
           code = rest;
         }
         break;
@@ -790,7 +805,7 @@ export const PDF417 = {
     return cw;
   },
 
-  getErrorCorrectionLevel: function(ecl, numcw) {
+  getErrorCorrectionLevel: function(ecl: any, numcw: any) {
     // get maximum correction level
     var maxecl = 8; // starting error level
     var maxerrsize = (928 - numcw); // available codewords for error
@@ -821,7 +836,7 @@ export const PDF417 = {
     return ecl;
   },
 
-  getErrorCorrection: function(cw, ecl) {
+  getErrorCorrection: function(cw: any, ecl: any) {
     // get error correction coefficients
     var ecc = this.rsfactors[ecl];
     // number of error correction factors
@@ -829,7 +844,7 @@ export const PDF417 = {
     // maximum index for rsfactors[ecl]
     var eclmaxid = (eclsize - 1);
     // initialize array of error correction codewords
-    var ecw = this._array_fill(0, eclsize, 0);
+    var ecw: any = this._array_fill(0, eclsize, 0);
     // for each data codeword
     for (var k=0; k<cw.length;k++) {
       var t1 = (cw[k] + ecw[eclmaxid]) % 929;
@@ -846,7 +861,7 @@ export const PDF417 = {
       if (ecw[j] != 0) {
         ecw[j] = 929 - ecw[j];
       }
-    }       
+    }
     ecw = ecw.reverse();
     return ecw;
   },
@@ -860,8 +875,9 @@ export const PDF417 = {
      * Functions from phpjs.org
      *
      */
-  _array_fill: function(start_index, num, mixed_val) {    
-    var key, tmp_arr = {};  
+  _array_fill: function(start_index: any, num: any, mixed_val: any) {
+    var key: any = {};
+    var tmp_arr: any = {};
 
     if (start_index == 0) {
       var tmpArray = [];
@@ -878,9 +894,9 @@ export const PDF417 = {
       }
 
       return tmp_arr;
-  },  
+  },
 
-  _str_repeat:function(input, multiplier) {
+  _str_repeat:function(input: any, multiplier: any) {
     // http://kevin.vanzonneveld.net
     // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
     // +   improved by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
@@ -902,7 +918,7 @@ export const PDF417 = {
     return y;
   },
 
-  _intval:function(mixed_var, base) {
+  _intval:function(mixed_var: any, base?: any) {
     // http://kevin.vanzonneveld.net
     // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
     // +   improved by: stensi
@@ -936,7 +952,7 @@ export const PDF417 = {
     }
   },
 
-  _sprintf: function() {
+  _sprintf: function(...args: any[]) {
     // http://kevin.vanzonneveld.net
     // +   original by: Ash Searle (http://hexmen.com/blog/)
     // + namespaced by: Michael White (http://getsprink.com)
@@ -962,7 +978,7 @@ export const PDF417 = {
       format = a[i++];
 
     // pad()
-    var pad = function (str, len, chr, leftJustify) {
+    var pad = function (str: any, len: any, chr: any, leftJustify: any) {
       if (!chr) {
         chr = ' ';
       }
@@ -971,7 +987,7 @@ export const PDF417 = {
     };
 
     // justify()
-    var justify = function (value, prefix, leftJustify, minWidth, zeroPad, customPadChar?) {
+    var justify = function (value: any, prefix: any, leftJustify: any, minWidth: any, zeroPad: any, customPadChar?: any) {
       var diff = minWidth - value.length;
       if (diff > 0) {
         if (leftJustify || !zeroPad) {
@@ -984,20 +1000,20 @@ export const PDF417 = {
     };
 
     // formatBaseX()
-    var formatBaseX = function (value, base, prefix, leftJustify, minWidth, precision, zeroPad) {
+    var formatBaseX = function (value: any, base: any, prefix: any, leftJustify: any, minWidth: any, precision: any, zeroPad: any) {
       // Note: casts negative numbers to positive ones
       var number = value >>> 0;
-      prefix = prefix && number && {
+      prefix = prefix && number && ({
         '2': '0b',
         '8': '0',
         '16': '0x'
-      }[base] || '';
+      } as any)[base] || '';
       value = prefix + pad(number.toString(base), precision || 0, '0', false);
       return justify(value, prefix, leftJustify, minWidth, zeroPad);
     };
 
     // formatString()
-    var formatString = function (value, leftJustify, minWidth, precision, zeroPad, customPadChar?) {
+    var formatString = function (value: any, leftJustify: any, minWidth: any, precision: any, zeroPad: any, customPadChar?: any) {
       if (precision != null) {
         value = value.slice(0, precision);
       }
@@ -1005,7 +1021,7 @@ export const PDF417 = {
     };
 
     // doFormat()
-    var doFormat = function (substring, valueIndex, flags, minWidth, _, precision, type) {
+    var doFormat = function (substring: any, valueIndex: any, flags: any, minWidth: any, _: any, precision: any, type: any) {
       var number;
       var prefix;
       var method;
@@ -1113,7 +1129,7 @@ export const PDF417 = {
         prefix = number < 0 ? '-' : positivePrefix;
         method = ['toExponential', 'toFixed', 'toPrecision']['efg'.indexOf(type.toLowerCase())];
         textTransform = ['toString', 'toUpperCase']['eEfFgG'.indexOf(type) % 2];
-        value = prefix + Math.abs(number)[method](precision);
+        value = prefix + (Math.abs(number) as any)[method](precision);
         return justify(value, prefix, leftJustify, minWidth, zeroPad)[textTransform]();
       default:
         return substring;
@@ -1123,7 +1139,7 @@ export const PDF417 = {
     return format.replace(regex, doFormat);
   },
 
-  _preg_split: function(pattern, subject, limit, flags) {
+  _preg_split: function(pattern: any, subject: any, limit: any, flags: any) {
       // http://kevin.vanzonneveld.net
       // + original by: Marco Marchiò
       // * example 1: preg_split(/[\s,]+/, 'hypertext language, programming');
@@ -1140,11 +1156,11 @@ export const PDF417 = {
 
       limit = limit || 0; flags = flags || ''; // Limit and flags are optional
 
-      var result, ret=[], index=0, i = 0,
+      var result, ret: any=[], index=0, i = 0,
           noEmpty = 0, delim = 0, offset = 0,
           OPTS: { [s: string]: number } = {}, optTemp = 0,
-          regexpBody = /^\/(.*)\/\w*$/.exec(pattern.toString())[1],
-          regexpFlags = /^\/.*\/(\w*)$/.exec(pattern.toString())[1];
+          regexpBody = /^\/(.*)\/\w*$/.exec(pattern.toString())![1],
+          regexpFlags = /^\/.*\/(\w*)$/.exec(pattern.toString())![1];
           // Non-global regexp causes an infinite loop when executing the while,
           // so if it's not global, copy the regexp and add the "g" modifier.
           pattern = pattern.global && typeof pattern !== 'string' ? pattern :
@@ -1165,11 +1181,11 @@ export const PDF417 = {
           }
           flags = optTemp;
       }
-      noEmpty = flags & OPTS.PREG_SPLIT_NO_EMPTY;
-      delim = flags & OPTS.PREG_SPLIT_DELIM_CAPTURE;
-      offset = flags & OPTS.PREG_SPLIT_OFFSET_CAPTURE;
+      noEmpty = flags & OPTS['PREG_SPLIT_NO_EMPTY'];
+      delim = flags & OPTS['PREG_SPLIT_DELIM_CAPTURE'];
+      offset = flags & OPTS['PREG_SPLIT_OFFSET_CAPTURE'];
 
-      var _filter = function(str, strindex) {
+      var _filter = function(str: any, strindex: any) {
           // If the match is empty and the PREG_SPLIT_NO_EMPTY flag is set don't add it
           if (noEmpty && !str.length) {return;}
           // If the PREG_SPLIT_OFFSET_CAPTURE flag is set
@@ -1210,11 +1226,11 @@ export const PDF417 = {
   },
 
 
-  _ord: function(string) {    
+  _ord: function(string: any) {
     return string.charCodeAt(0);
   },
 
-  _array_search: function(needle, haystack, argStrict) {
+  _array_search: function(needle: any, haystack: any, argStrict?: any) {
     // http://kevin.vanzonneveld.net
     // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
     // +      input by: Brett Zamir (http://brett-zamir.me)
@@ -1256,9 +1272,9 @@ export const PDF417 = {
       return false;
   },
 
-  _my_bcmod: function(x, y) {
+  _my_bcmod: function(x: any, y: any) {
       // how many numbers to take at once? carefull not to exceed (int)
-      var take = 5;    
+      var take = 5;
       var mod = '';
       do {
           var a = parseInt(mod + '' + x.substring(0, take));
@@ -1267,7 +1283,7 @@ export const PDF417 = {
       }
       while ( x.length );
 
-      return parseInt(mod); 
+      return parseInt(mod);
   }
 
 };
